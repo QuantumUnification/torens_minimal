@@ -1,0 +1,24 @@
+import math, hashlib, matplotlib.pyplot as plt
+class T:
+    def __init__(self,v,star,s,h): self.v, self.star, self.s, self.h = v,star,s,h
+    def __add__(self,o):
+        return T(self.v+o.v, max(self.star,o.star), min(self.s,o.s)-1,
+                 f"({self.h}+{o.h})")
+    def __mul__(self,o):
+        return T(self.v*o.v, max(self.star,o.star,1), min(self.s,o.s)-2,
+                 f"({self.h}*{o.h})")
+
+def lorenz_torens(x,y,z, n=1000):
+    dt = 0.01
+    for _ in range(n):
+        x1 = x + T( -10*(x.v-y.v), 0, 2048, "x") * dt
+        y1 = y + ( T(28*x.v - y.v, 0, 2048, "y") - T(x.v*z.v, 0, 2048, "xz") ) * dt
+        z1 = z + ( T(x.v*y.v, 0, 2048, "xy") - T(8*z.v/3, 0, 2048, "z") ) * dt
+        x,y,z = x1,y1,z1
+    return x,y,z
+
+x0=T(0.,0,2048,"x0"); y0=T(1.,0,2048,"y0"); z0=T(1.05,0,2048,"z0")
+xf,yf,zf = lorenz_torens(x0,y0,z0)
+print("final x=", xf.v, "history hash=", hashlib.sha256(xf.h.encode()).hexdigest()[:8])
+
+# 画误差对比（numpy 随便跑 1000 步同初始值，图略）
